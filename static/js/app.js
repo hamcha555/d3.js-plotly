@@ -8,7 +8,7 @@ var otuId;
 
 // // ////////////////////////////////////////////////////////
 // // ----------------GRAPHS --- GRAPHS
-function plot_graphs(){
+function init_plot_graphs(){
    d3.json(url).then(function(data) {
         sample_values =  data.samples[0].sample_values.slice(0,10).reverse();
         console.log(`OTU Value ${sample_values}`);
@@ -60,6 +60,9 @@ function plot_graphs(){
 
       Plotly.newPlot("bubble", data3, layout3);
     });
+    
+    plotting_demo()
+    testsubjectid()
 }
 
 // ////////////////////////////////////////////////////////
@@ -78,12 +81,9 @@ function testsubjectid() {
         dropdownMenu.append("option").text(element).property("value")
     });
     plotting_demo(dataset);
-    // plot_graphs(dataset);
     updatechart(dataset);
   });
 }
-
-testsubjectid()
 
 // ////////////////////////////////////////////////////////
 // // ---------------------META DATA using LISTENER--------
@@ -98,8 +98,8 @@ function plotting_demo(subjectid){
        var placeholder = d3.select("#sample-metadata")
        Object.entries(demo_id).forEach(([key,value])=>{
            placeholder.append("p").text(`${key}:${value}`)
-       })
-    })
+       });
+    });
 }
 
 function updatechart(subjectid){
@@ -127,7 +127,7 @@ function updatechart(subjectid){
       Plotly.restyle("bubble", "x", [otu_ids]);
       Plotly.restyle("bubble","y",[sample_values])
       // Plotly.newPlot("bubble", data3, layout2);
-  })
+  });
 }
 
-plot_graphs()
+init_plot_graphs()
