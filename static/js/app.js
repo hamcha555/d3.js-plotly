@@ -7,7 +7,7 @@ var otu_labels;
 var otuId;
 
 // // ////////////////////////////////////////////////////////
-// // ----------------GRAPHS --- GRAPHS
+// // ----------------INIT and GRAPHS ------------------------
 function init_plot_graphs(){
    d3.json(url).then(function(data) {
         sample_values =  data.samples[0].sample_values.slice(0,10).reverse();
@@ -33,7 +33,8 @@ function init_plot_graphs(){
         };
 
       Plotly.newPlot("bar", data2, layout);
-    console.log("bar working");
+      console.log("bar working");
+      
       // // -----BUBBLE CHART PLOT OTU sample values
       let data3 = [{
         x: otu_ids,
@@ -49,7 +50,7 @@ function init_plot_graphs(){
       }];
 
       var layout3 = {
-        title: 'Bubble Chart Size Scaling',
+        // title: 'Bubble Chart Size Scaling',
         showlegend: false,
         height: 600,
         width: 1200,
@@ -60,34 +61,36 @@ function init_plot_graphs(){
 
       Plotly.newPlot("bubble", data3, layout3);
     });
-    
-    plotting_demo()
-    testsubjectid()
+
+    // demo_info()
+    dropdown_populate()
 }
 
 // ////////////////////////////////////////////////////////
 // // ---------------------Drop Down LISTENER ------------------
-d3.select("#selDataset").on("change", testsubjectid);
+d3.select("#selDataset").on("change", dropdown_populate);
 
 // This function is called when a dropdown menu item is selected
-function testsubjectid() {
+function dropdown_populate() {
     // Use D3 to select the dropdown menu
     var dropdownMenu = d3.select("#selDataset");
     // Assign the value of the dropdown menu option to a variable
-    var dataset = dropdownMenu.property("value");
+
 // Fetch the JSON data and console log it
     d3.json(url).then((data) =>{
     data.names.forEach(element => {
         dropdownMenu.append("option").text(element).property("value")
     });
-    plotting_demo(dataset);
+    var dataset = dropdownMenu.property("value");
+    demo_info(dataset);
     updatechart(dataset);
+    console.log(`This is dataset: ${dataset}`);
   });
 }
 
 // ////////////////////////////////////////////////////////
 // // ---------------------META DATA using LISTENER--------
-function plotting_demo(subjectid){
+function demo_info(subjectid){
     d3.json(url).then((data) =>{
        meta = data.metadata
        meta_array = meta.filter(mt=>mt.id==subjectid)
