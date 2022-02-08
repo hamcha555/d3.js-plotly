@@ -7,14 +7,34 @@ var otu_labels;
 var otuId;
 
 // // ////////////////////////////////////////////////////////
+function init(){
+  // Fetch the JSON data and console log it
+  // populate dropdown list
+  d3.json(url).then((data) =>{
+    data.names.forEach(element => {
+        dropdownMenu.append("option").text(element).property("value") 
+    });
+
+  var sample1 = data.metadata[0];
+  console.log(sample1);
+  graphs(sample1);
+  metadata(sample1);
+});
+}
+
+init();
+
 // // ----------------GRAPHS --- GRAPHS
-function plot_graphs(){
-   d3.json(url).then(function(data) {
-        sample_values =  data.samples[0].sample_values.slice(0,10).reverse();
+function graphs(subjectid){
+    d3.json(url).then(function(data) {
+        sample2 = data.samples;
+        sample_id = sample2.filter(i=>i.id==subjectid);      
+      
+      sample_values =  sample_id[0].sample_values.slice(0,10).reverse();
         console.log(`OTU Value ${sample_values}`);
-        otu_ids =  data.samples[0].otu_ids.slice(0,10);
+        otu_ids =  sample_id[0].otu_ids.slice(0,10);
         console.log (`OTU ID ${otu_ids}`); 
-        otu_labels = data.samples[0].otu_labels.slice(0,10);
+        otu_labels = sample_id[0].otu_labels.slice(0,10);
         console.log(`OTU label ${otu_labels}`);
         yticks = otu_ids.slice(0, 10).map(otuId => `OTU ${otuId}`).reverse();
 
@@ -33,7 +53,7 @@ function plot_graphs(){
         };
 
       Plotly.newPlot("bar", data2, layout);
-    console.log("bar working");
+
       // // -----BUBBLE CHART PLOT OTU sample values
       let data3 = [{
         x: otu_ids,
@@ -60,7 +80,7 @@ function plot_graphs(){
 
       Plotly.newPlot("bubble", data3, layout3);
     });
-}
+  }
 
 // ////////////////////////////////////////////////////////
 // // ---------------------Drop Down LISTENER ------------------
@@ -77,57 +97,28 @@ function testsubjectid() {
     data.names.forEach(element => {
         dropdownMenu.append("option").text(element).property("value")
     });
-    plotting_demo(dataset);
-    // plot_graphs(dataset);
-    updatechart(dataset);
-  });
+    metadata(dataset);
+    graphs(dataset);
+});
 }
 
 testsubjectid()
 
 // ////////////////////////////////////////////////////////
 // // ---------------------META DATA using LISTENER--------
-function plotting_demo(subjectid){
+function metadata(subjectid){
     d3.json(url).then((data) =>{
        meta = data.metadata
-       meta_array = meta.filter(mt=>mt.id==subjectid)
-       demo_id = meta_array[0]
+       meta_id = meta.filter(mt=>mt.id==subjectid)
+       demo_id = meta_id[0]
        // Clear out current contents in the panel
        d3.select("#sample-metadata").html("");
        // Add new content
        var placeholder = d3.select("#sample-metadata")
        Object.entries(demo_id).forEach(([key,value])=>{
            placeholder.append("p").text(`${key}:${value}`)
-       })
-    })
+       });
+    });
+    console.log(data);
 }
 
-function updatechart(subjectid){
-  d3.json(url).then((data) =>{
-
-      x = (element) => element == subjectid
-      sample_index = data.names.findIndex(x);
-
-      console.log(`Sample Index: ${sample_index}`)
-
-      sample_values =  data.samples[sample_index].sample_values.slice(0,10).reverse();
-      otu_ids =  data.samples[sample_index].otu_ids.slice(0,10);
-      yticks = otu_ids.slice(0, 10).map(otuId => `OTU ${otuId}`).reverse();
-      otu_labels = data.samples[sample_index].otu_labels.slice(0,10);
-  
-      // console.log(`SampleValues: ${sample_values}`)
-      // console.log(`otu_ids: ${otu_ids}`)
-      // console.log(`otu_labels: ${otu_labels}`)
-      
-      Plotly.restyle("bar","x", [sample_values]);
-      Plotly.restyle("bar","labels", [otu_ids]);
-      Plotly.restyle("bar","y", [yticks]);
-      Plotly.restyle("bar","text", [otu_labels]);
-  
-      Plotly.restyle("bubble", "x", [otu_ids]);
-      Plotly.restyle("bubble","y",[sample_values])
-      // Plotly.newPlot("bubble", data3, layout2);
-  })
-}
-
-plot_graphs()
